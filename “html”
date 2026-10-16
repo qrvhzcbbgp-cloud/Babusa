@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quantum AI Video Studio Pro</title>
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.5);
+            --accent: #ec4899;
+            --bg-deep: #030712;
+            --bg-panel: rgba(17, 24, 39, 0.85);
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border: rgba(255, 255, 255, 0.08);
+            --bubble-user: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            --bubble-bot: #1f2937;
+        }
+
+        [data-theme="light"] {
+            --bg-deep: #f3f4f6;
+            --bg-panel: rgba(255, 255, 255, 0.9);
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: rgba(0, 0, 0, 0.08);
+            --bubble-user: linear-gradient(135deg, #7c3aed, #db2777);
+            --bubble-bot: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 20;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-pulse {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 0 15px var(--primary-glow);
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+            100% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.6); }
+        }
+
+        .brand-info h1 {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-info span {
+            font-size: 11px;
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .header-tools {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-icon {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* CONTROL PANEL DRAWER */
+        .settings-panel {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .settings-panel::-webkit-scrollbar { display: none; }
+
+        .select-box {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        /* CHAT CONTAINER */
+        .chat-area {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            scroll-behavior: smooth;
+        }
+
+        .msg-row {
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+            max-width: 90%;
+        }
+
+        .msg-row.user { align-self: flex-end; }
+        .msg-row.bot { align-self: flex-start; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bubble {
+            padding: 12px 15px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.45;
+            word-wrap: break-word;
+        }
+
+        .user .bubble {
+            background: var(--bubble-user);
+            color: white;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .bot .bubble {
+            background: var(--bubble-bot);
+            color: var(--text-main);
+            border-bottom-left-radius: 4px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* ADVANCED GENERATION UI CARD */
+        .generation-card {
+            margin-top: 10px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .gen-header {
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-box {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            transition: width 0.3s ease;
+        }
+
+        /* GENERATED VIDEO PLAYER */
+        .video-result-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            display: none;
+        }
+
+        .video-result-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            color: white;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        /* QUICK SUGGESTIONS */
+        .chips-scroll {
+            display: flex;
+            gap: 6px;
+            padding: 0 16px 8px 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .chips-scroll::-webkit-scrollbar { display: none; }
+
+        .chip-btn {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        /* INPUT FOOTER */
+        .footer-input {
+            background: var(--bg-panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-box {
+            flex: 1;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
+
+        input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 14px;
+            padding: 12px 0;
+        }
+
+        input::placeholder { color: var(--text-muted); }
+
+        .send-action-btn {
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--primary-glow);
+            flex-shrink: 0;
+        }
+
+        .send-action-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            transform: translateX(1px);
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <header>
+        <div class="brand">
+            <div class="logo-pulse">✨</div>
+            <div class="brand-info">
+                <h1>Neural Video AI</h1>
+                <span>🟢 Нейромережа готова</span>
+            </div>
+        </div>
+        <div class="header-tools">
+            <button class="action-icon" onclick="toggleTheme()" title="Тема">🌓</button>
+            <button class="action-icon" onclick="clearLog()" title="Очистити">🗑️</button>
+        </div>
+    </header>
+
+    <div class="settings-panel">
+        <select class="select-box" id="aiModel">
+            <option value="Sora-v3">Model: Sora AI v3 Pro</option>
+            <option value="Runway-Gen3">Model: Runway Gen-3 Alpha</option>
+            <option value="StableVideo">Model: Ultra-Realism v2</option>
+        </select>
+        <select class="select-box" id="videoStyle">
+            <option value="Cinematic">Стиль: Кінематограф</option>
+            <option value="Cyberpunk">Стиль: Кіберпанк 2077</option>
+            <option value="Anime">Стиль: 3D Аніме</option>
+            <option value="Realistic">Стиль: Ультрареалізм</option>
+        </select>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+        <div class="msg-row bot">
+            <div class="bubble">Вітаю! Я твій персональний AI-режисер. Опиши будь-яку фантазію, сюжет чи подію — і я власноруч згенерую для тебе унікальне відео з нуля за допомогою штучного інтелекту! Напиши вказівку нижче. 👇</div>
+        </div>
+    </div>
+
+    <div class="chips-scroll">
+        <div class="chip-btn" onclick="quickGen('Кіт в костюмі космонавта летить на Марс')">🚀 Кіт-космонавт на Марсі</div>
+        <div class="chip-btn" onclick="quickGen('Футуристичне місто майбутнього з літаючими авто')">🏙️ Місто майбутнього</div>
+        <div class="chip-btn" onclick="quickGen('Магічний ліс з єдинорогами вночі')">🦄 Магічний ліс</div>
+    </div>
+
+    <div class="footer-input">
+        <div class="input-box">
+            <input type="text" id="userInput" placeholder="Опиши відео, яке хочеш створити..." autocomplete="off">
+        </div>
+        <button class="send-action-btn" onclick="handleUserPrompt()">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+        </button>
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chatArea');
+        const userInput = document.getElementById('userInput');
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleUserPrompt();
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            body.setAttribute('data-theme', body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        }
+
+        function clearLog() {
+            chatArea.innerHTML = `
+                <div class="msg-row bot">
+                    <div class="bubble">Історію очищено. Готовий генерувати нові відео!</div>
+                </div>
+            `;
+        }
+
+        function quickGen(text) {
+            userInput.value = text;
+            handleUserPrompt();
+        }
+
+        function handleUserPrompt() {
+            const prompt = userInput.value.trim();
+            if (!prompt) return;
+
+            appendMessage(prompt, 'user');
+            userInput.value = '';
+
+            // Створюємо картку генерації відео
+            const model = document.getElementById('aiModel').value;
+            const style = document.getElementById('videoStyle').value;
+            
+            const cardId = 'gen-' + Date.now();
+            const botMsgHtml = `
+                <div class="bubble" style="margin-bottom: 8px;">Генерую відео за вашим запитом за допомогою <b>${model}</b> (${style})... Чекайте, нейромережа будує кадри.</div>
+                <div class="generation-card">
+                    <div class="gen-header">
+                        <span>🔄 Рендеринг нейромережі</span>
+                        <span id="${cardId}-status">0%</span>
+                    </div>
+                    <div class="progress-box" id="${cardId}-progress-box">
+                        <div class="spinner"></div>
+                        <span style="font-size: 12px; color: var(--text-muted);" id="${cardId}-step">Синтез промпту та обробка геометрії...</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="${cardId}-bar"></div>
+                        </div>
+                    </div>
+                    <div class="video-result-box" id="${cardId}-videobox">
+                        <div class="video-overlay-badge">AI Generated • ${style}</div>
+                        <video autoplay loop muted playsinline id="${cardId}-video">
+                            <!-- Використовуємо надійний вільний демонстраційний потік для візуалізації згенерованого контенту -->
+                            <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            `;
+
+            appendMessage("", 'bot', botMsgHtml);
+            startSimulatedGeneration(cardId, prompt);
+        }
+
+        function appendMessage(text, sender, customHtml = '') {
+            const row = document.createElement('div');
+            row.className = `msg-row ${sender}`;
+            
+            if (text) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.textContent = text;
+                row.appendChild(bubble);
+            }
+
+            if (customHtml) {
+                const customDiv = document.createElement('div');
+                customDiv.innerHTML = customHtml;
+                row.appendChild(customDiv);
+            }
+
+            chatArea.appendChild(row);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function startSimulatedGeneration(id, userText) {
+            let progress = 0;
+            const statusEl = document.getElementById(`${id}-status`);
+            const barEl = document.getElementById(`${id}-bar`);
+            const stepEl = document.getElementById(`${id}-step`);
+            const progressBox = document.getElementById(`${id}-progress-box`);
+            const videoBox = document.getElementById(`${id}-videobox`);
+            const videoEl = document.getElementById(`${id}-video`);
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 12) + 8;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+
+                    // Завершення рендерингу, показ відео
+                    statusEl.textContent = "Готово! 100%";
+                    barEl.style.width = "100%";
+                    
+                    setTimeout(() => {
+                        progressBox.style.display = "none";
+                        videoBox.style.display = "block";
+                        videoEl.play().catch(e => console.log(e));
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    }, 500);
+                } else {
+                    statusEl.textContent = progress + "%";
+                    barEl.style.width = progress + "%";
+                    
+                    if (progress > 30 && progress < 60) {
+                        stepEl.textContent = "Дифузія та накладання текстур світла...";
+                    } else if (progress >= 60) {
+                        stepEl.textContent = "Фінальна стабілізація та FPS апскейл...";
+                    }
+                }
+            }, 350);
+        }
+    </script>
+</body>
+</html>
